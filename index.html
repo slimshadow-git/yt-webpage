@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+
+    <!-- Add Poppins font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Apply Poppins font to the whole page */
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Poppins', sans-serif;
+        }
+        .output pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        .server-stats {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .server-stats h2 {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .server-stats p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+        .cpu-usage {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #FF5733;
+        }
+        .copyright {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+
+        /* Media query for smaller screens (mobile devices) */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+                margin: 20px;
+            }
+
+            button {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+
+            .output {
+                max-height: 200px;
+            }
+            
+            .server-stats {
+                padding: 15px;
+            }
+
+            .cpu-usage {
+                font-size: 16px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>YouTube Downloader</h1>
+        <label for="url">Video URL:</label>
+        <input type="text" id="url" placeholder="Enter YouTube video URL">
+        <button id="download-btn">Download Video</button>
+        
+        <!-- Server Stats Section -->
+        <div class="server-stats">
+            <h2>Server Stats</h2>
+            <p><strong>Server Name:</strong> SlimShadow Private Hosting</p>
+            <p><strong> current RAM:</strong> 855 GB</p>
+            <p><strong>current Storage:</strong></p>
+            <ul>
+                <li><strong>Disk 1:</strong> 2.4 TB (2,460 GB)</li>
+                <li><strong>Disk 2:</strong> 1.7 TB </li>
+            </ul>
+            <p><strong>current CPU:</strong> Intel Xeon 64-core 2.00 GHz</p>
+            <p><strong>current Location:</strong> Paris, France</p>
+        </div>
+
+        <!-- CPU Usage Section -->
+        <div class="cpu-usage" id="cpu-usage">
+            CPU Usage: 0%
+        </div>
+
+        <!-- Fetch Logs and Output Logs Section -->
+        <button id="logs-btn">Fetch server Logs</button>
+        <button id="output-btn">Fetch Output Logs</button>
+        <div class="output" id="output"></div>
+
+        <!-- Copyright Usage Section -->
+        <div class="copyright">
+            <p>&copy; 2024 SlimShadow. All Rights Reserved.</p>
+        </div>
+    </div>
+
+    <script>
+        const downloadBtn = document.getElementById('download-btn');
+        const logsBtn = document.getElementById('logs-btn');
+        const outputBtn = document.getElementById('output-btn');
+        const outputDiv = document.getElementById('output');
+        const cpuUsageDiv = document.getElementById('cpu-usage');
+
+        // Function to simulate CPU usage
+        function updateCPUUsage() {
+            // Random CPU usage between 70% and 90%
+            const cpuUsage = Math.floor(Math.random() * (90 - 70 + 1)) + 70;
+            cpuUsageDiv.innerText = `CPU Usage: ${cpuUsage}%`;
+        }
+
+        // Update CPU usage every second
+        setInterval(updateCPUUsage, 1000);
+
+        downloadBtn.addEventListener('click', async () => {
+            const url = document.getElementById('url').value;
+            if (!url) {
+                alert('Please enter a video URL.');
+                return;
+            }
+            outputDiv.innerHTML = '<p>Downloading...</p>';
+            try {
+                const response = await fetch(`https://r3hab-yt-test-api.hf.space/video/download?url=${encodeURIComponent(url)}`);
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const downloadUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = 'video.mp4';
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(downloadUrl);
+                    outputDiv.innerHTML = '<p>Download started successfully.</p>';
+                } else {
+                    const error = await response.json();
+                    outputDiv.innerHTML = `<p>Error: ${error.detail}</p>`;
+                }
+            } catch (err) {
+                outputDiv.innerHTML = `<p>Error: ${err.message}</p>`;
+            }
+        });
+
+        logsBtn.addEventListener('click', async () => {
+            outputDiv.innerHTML = '<p>Fetching logs...</p>';
+            try {
+                const response = await fetch('https://r3hab-yt-test-api.hf.space/logs');
+                if (response.ok) {
+                    const data = await response.json();
+                    outputDiv.innerHTML = `<pre>${data.logs}</pre>`;
+                } else {
+                    const error = await response.json();
+                    outputDiv.innerHTML = `<p>Error: ${error.detail}</p>`;
+                }
+            } catch (err) {
+                outputDiv.innerHTML = `<p>Error: ${err.message}</p>`;
+            }
+        });
+
+        outputBtn.addEventListener('click', async () => {
+            outputDiv.innerHTML = '<p>Fetching yt-dlp output...</p>';
+            try {
+                const response = await fetch('https://r3hab-yt-test-api.hf.space/yt-dlp-output');
+                if (response.ok) {
+                    const data = await response.json();
+                    outputDiv.innerHTML = `<pre>${data.output.join('\n')}</pre>`;
+                } else {
+                    const error = await response.json();
+                    outputDiv.innerHTML = `<p>Error: ${error.detail}</p>`;
+                }
+            } catch (err) {
+                outputDiv.innerHTML = `<p>Error: ${err.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
