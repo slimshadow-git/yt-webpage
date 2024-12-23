@@ -3,121 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Downloader</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 font-sans">
-    <div class="max-w-lg mx-auto mt-10 bg-white shadow-md rounded-lg p-6">
-        <h1 class="text-2xl font-semibold text-center text-gray-800">YouTube Downloader</h1>
-
-        <label for="url" class="block text-sm font-medium text-gray-600 mt-4">Video URL:</label>
-        <input type="text" id="url" class="w-full mt-2 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter YouTube video URL">
-
-        <button id="download-btn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded mt-4">Download Video</button>
-
-        <div class="mt-6 bg-gray-50 p-4 rounded-lg shadow">
-            <h2 class="text-xl font-semibold text-center text-gray-700">Server Stats</h2>
-            <p class="text-sm text-gray-600 mt-2"><strong>Server Name:</strong> SlimShadow Private Hosting</p>
-            <p class="text-sm text-gray-600"><strong>Current RAM:</strong> 855 GB</p>
-            <p class="text-sm text-gray-600"><strong>Current Storage:</strong></p>
-            <ul class="list-disc list-inside text-sm text-gray-600">
-                <li><strong>Disk 1:</strong> 2.4 TB (2,460 GB)</li>
-                <li><strong>Disk 2:</strong> 1.7 TB</li>
-            </ul>
-            <p class="text-sm text-gray-600"><strong>Current CPU:</strong> Intel Xeon 64-core 2.00 GHz</p>
-            <p class="text-sm text-gray-600"><strong>Current Location:</strong> Paris, France</p>
-        </div>
-
-        <div id="cpu-usage" class="mt-4 text-center text-lg font-semibold text-orange-500">CPU Usage: 0%</div>
-
-        <button id="logs-btn" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded mt-4">Fetch Server Logs</button>
-        <button id="output-btn" class="w-full bg-gray-300 hover:bg-gray-400 text-gray-700 font-medium py-2 px-4 rounded mt-2">Fetch Output Logs</button>
-
-        <div id="output" class="mt-4 p-4 bg-gray-100 border rounded-md max-h-48 overflow-y-auto text-sm text-gray-700"></div>
-
-        <footer class="mt-6 text-center text-xs text-gray-500">
-            &copy; 2024 SlimShadow. All Rights Reserved.
-        </footer>
-    </div>
-
-    <script>
-        const downloadBtn = document.getElementById('download-btn');
-        const logsBtn = document.getElementById('logs-btn');
-        const outputBtn = document.getElementById('output-btn');
-        const outputDiv = document.getElementById('output');
-        const cpuUsageDiv = document.getElementById('cpu-usage');
-
-        // Add a spinner element for loading states
-        const spinner = `<div class="flex justify-center items-center h-12"><svg class="animate-spin h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg></div>`;
-
-        // Function to simulate CPU usage
-        function updateCPUUsage() {
-            const cpuUsage = Math.floor(Math.random() * (90 - 70 + 1)) + 70;
-            cpuUsageDiv.innerText = `CPU Usage: ${cpuUsage}%`;
+    <title>Embed Streamlit App</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
         }
-
-        setInterval(updateCPUUsage, 1000);
-
-        downloadBtn.addEventListener('click', async () => {
-            const url = document.getElementById('url').value;
-            if (!url) {
-                outputDiv.innerHTML = '<p class="text-red-500">Please enter a video URL.</p>';
-                return;
-            }
-            outputDiv.innerHTML = spinner;
-            try {
-                const response = await fetch(`https://r3hab-yt-test-api.hf.space/video/download?url=${encodeURIComponent(url)}`);
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const downloadUrl = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = downloadUrl;
-                    a.download = 'video.mp4';
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    window.URL.revokeObjectURL(downloadUrl);
-                    outputDiv.innerHTML = '<p class="text-green-500">Download started successfully.</p>';
-                } else {
-                    const error = await response.json();
-                    outputDiv.innerHTML = `<p class="text-red-500">Error: ${error.detail}</p>`;
-                }
-            } catch (err) {
-                outputDiv.innerHTML = `<p class="text-red-500">Error: ${err.message}</p>`;
-            }
-        });
-
-        logsBtn.addEventListener('click', async () => {
-            outputDiv.innerHTML = spinner;
-            try {
-                const response = await fetch('https://r3hab-yt-test-api.hf.space/logs');
-                if (response.ok) {
-                    const data = await response.json();
-                    outputDiv.innerHTML = `<pre class="bg-gray-200 p-2 rounded">${data.logs}</pre>`;
-                } else {
-                    const error = await response.json();
-                    outputDiv.innerHTML = `<p class="text-red-500">Error: ${error.detail}</p>`;
-                }
-            } catch (err) {
-                outputDiv.innerHTML = `<p class="text-red-500">Error: ${err.message}</p>`;
-            }
-        });
-
-        outputBtn.addEventListener('click', async () => {
-            outputDiv.innerHTML = spinner;
-            try {
-                const response = await fetch('https://r3hab-yt-test-api.hf.space/yt-dlp-output');
-                if (response.ok) {
-                    const data = await response.json();
-                    outputDiv.innerHTML = `<pre class="bg-gray-200 p-2 rounded">${data.output.join('\n')}</pre>`;
-                } else {
-                    const error = await response.json();
-                    outputDiv.innerHTML = `<p class="text-red-500">Error: ${error.detail}</p>`;
-                }
-            } catch (err) {
-                outputDiv.innerHTML = `<p class="text-red-500">Error: ${err.message}</p>`;
-            }
-        });
-    </script>
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <iframe src="https://r3hab-yt-streamlit.hf.space/?embed=true&embed_options=hide_toolbar" title="YouTube Video Downloader"></iframe>
 </body>
 </html>
